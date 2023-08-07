@@ -1,7 +1,6 @@
 use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 use serde_json::Value;
-use std::{fs::File, path::Path};
 
 const STEAM_APP_DETAIL_API: &str = "https://store.steampowered.com/api/appdetails";
 const STEAM_CDN: &str = "https://cdn.cloudflare.steamstatic.com/steam/apps/";
@@ -42,22 +41,19 @@ pub fn fetch_steamapp_info(appid: u32) -> Result<Option<SteamApp>> {
     }
 }
 
-pub fn download_artwork(appid: u32, artwork_name: &str, destination_path: &Path) -> Result<()> {
-    let mut dest_file = File::create(destination_path).with_context(|| {
-        format!(
-            "Cannot create artwork image file at '{}'",
-            destination_path.to_str().unwrap()
-        )
-    })?;
-
+pub async fn download_artwork(appid: u32, artwork_name: &str) -> Result<Vec<u8>> {
     let url = format!("{STEAM_CDN}{appid}/{artwork_name}");
-    let mut resp = reqwest::blocking::get(url.clone())
+    let resp = reqwest::get(url.clone())
+        .await
         .with_context(|| format!("Cannot download artwork at url '{url}'"))?;
+
     if !resp.status().is_success() {
         bail!("Http status code of artwork '{url}' is {}", resp.status())
     }
-    resp.copy_to(&mut dest_file)
-        .with_context(|| "Couldn't copy response to already created image file")?;
 
-    Ok(())
+    let bytes = resp
+        .bytes()
+        .await
+        .with_context(|| "Couldn't get response bytes")?;
+    Ok(bytes.to_vec())
 }
