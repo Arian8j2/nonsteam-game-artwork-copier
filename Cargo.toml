@@ -1,5 +1,5 @@
 [package]
-name = "fix-nonsteam-game-artwork"
+name = "nonsteam-game-artwork-copier"
 version = "0.1.0"
 edition = "2021"
 
