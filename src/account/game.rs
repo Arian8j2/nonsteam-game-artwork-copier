@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use regex::bytes::Regex;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Game {
     pub name: String,
     pub appid: u32,

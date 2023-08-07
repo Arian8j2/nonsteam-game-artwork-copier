@@ -7,7 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Account {
     pub nonsteam_games: Vec<Game>,
     pub grid_folder_path: PathBuf,
