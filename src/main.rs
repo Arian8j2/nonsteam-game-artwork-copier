@@ -3,7 +3,7 @@ mod artwork;
 mod dialogues;
 mod steam_api;
 
-use account::{get_accounts_userdata_paths, parse_accounts};
+use account::{game::Game, get_accounts_userdata_paths, parse_accounts};
 use anyhow::{Context, Result};
 use artwork::fetch_artworks;
 use dialoguer::console::style;
@@ -23,8 +23,28 @@ fn main() -> Result<()> {
     let accounts = parse_accounts(account_paths)?;
 
     let (selected_account, selected_nonsteam_game) = choose_nonsteam_game(&accounts)?;
+    let selected_game = ask_for_original_steam_game()?;
 
-    let selected_game_appid = loop {
+    let text = format!(
+        "Copying artwork of '{}' to '{}'",
+        selected_game.name, selected_nonsteam_game.name
+    );
+    println!("{}", style(text).blue());
+
+    let grid_folder = &selected_account.grid_folder_path;
+    fetch_artworks(
+        selected_game.appid,
+        selected_nonsteam_game.appid,
+        &grid_folder,
+    )
+    .with_context(|| "Couldn't fetch and place artworks in steam directory")?;
+
+    println!("{}", style("Restart steam to see changes").green());
+    Ok(())
+}
+
+fn ask_for_original_steam_game() -> Result<Game> {
+    loop {
         let game_name = choose_steam_game_name()?;
         let found_games = steam_api::search_game(&game_name)?;
         if found_games.is_empty() {
@@ -35,21 +55,12 @@ fn main() -> Result<()> {
 
         println!(
             "{}",
-            style("Press q or ESC to search with different prompt").yellow()
+            style("Press q or ESC to search with different query").blue()
         );
+
         let Some(steam_game) = choose_game_from_list(found_games)? else {
             continue;
         };
-
-        let info = style(format!("Changing artworks to '{}'", steam_game.name));
-        println!("{}", info.yellow());
-        break steam_game.appid;
-    };
-
-    let grid_folder = &selected_account.grid_folder_path;
-    fetch_artworks(selected_game_appid, selected_nonsteam_game, &grid_folder)
-        .with_context(|| "Couldn't fetch and place artworks in steam directory")?;
-
-    println!("{}", style("Restart steam to see changes").green());
-    Ok(())
+        return Ok(steam_game);
+    }
 }

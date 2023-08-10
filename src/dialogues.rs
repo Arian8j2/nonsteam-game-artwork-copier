@@ -13,7 +13,7 @@ lazy_static! {
     };
 }
 
-pub fn choose_nonsteam_game(accounts: &Vec<Account>) -> Result<(&Account, u32)> {
+pub fn choose_nonsteam_game(accounts: &Vec<Account>) -> Result<(&Account, &Game)> {
     let games = accounts
         .iter()
         .map(|a| {
@@ -49,7 +49,7 @@ pub fn choose_nonsteam_game(accounts: &Vec<Account>) -> Result<(&Account, u32)> 
         .find(|game| game.name == selected_game)
         .unwrap();
 
-    Ok((game_account, game.appid))
+    Ok((game_account, game))
 }
 
 pub fn choose_steam_game_name() -> Result<String> {
