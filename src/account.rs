@@ -1,4 +1,4 @@
-mod game;
+pub mod game;
 
 use anyhow::{bail, Context, Result};
 use game::{parse_games_shortcut, Game};

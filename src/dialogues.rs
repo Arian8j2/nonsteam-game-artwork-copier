@@ -1,4 +1,4 @@
-use super::account::Account;
+use super::account::{game::Game, Account};
 use anyhow::{Context, Result};
 use dialoguer::{console::style, theme::ColorfulTheme, Input, Select};
 use lazy_static::lazy_static;
@@ -52,18 +52,20 @@ pub fn choose_nonsteam_game(accounts: &Vec<Account>) -> Result<(&Account, u32)> 
     Ok((game_account, game.appid))
 }
 
-pub fn choose_existed_steam_appid() -> Result<u32> {
-    let appid: u32 = Input::with_theme(&*THEME)
-        .with_prompt("Enter existed steam app id")
-        .validate_with(|input: &String| -> Result<(), String> {
-            input
-                .parse::<u32>()
-                .map_err(|_| "App id must be positive number")?;
-            Ok(())
-        })
-        .interact()?
-        .parse()
-        .unwrap();
+pub fn choose_steam_game_name() -> Result<String> {
+    let name: String = Input::with_theme(&*THEME)
+        .with_prompt("Search steam original games")
+        .interact()?;
 
-    Ok(appid)
+    Ok(name)
+}
+
+pub fn choose_game_from_list(mut games: Vec<Game>) -> Result<Option<Game>> {
+    let names = games.iter().map(|g| g.name.as_str()).collect::<Vec<&str>>();
+    let selected_game_index = Select::with_theme(&*THEME)
+        .with_prompt("Select a game")
+        .items(&names)
+        .interact_opt()?;
+
+    Ok(selected_game_index.map(|index| games.remove(index)))
 }
