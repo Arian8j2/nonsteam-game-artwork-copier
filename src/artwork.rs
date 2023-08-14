@@ -10,7 +10,7 @@ const ARTWORKS_NAME_TO_DESTINATION_NAME: [(&str, &str); 4] = [
     ("library_hero.jpg", "_hero.jpg"),
     ("logo.png", "_logo.png"),
     ("library_600x900.jpg", "p.jpg"),
-    ("capsule_616x353.jpg", ".jpg"),
+    ("header.jpg", ".jpg"),
 ];
 
 #[tokio::main(flavor = "current_thread")]
