@@ -13,8 +13,14 @@ use std::path::PathBuf;
 
 lazy_static! {
     static ref STEAM_PATH: PathBuf = {
-        let home_dir = dirs::home_dir().expect("Home directory not found");
-        home_dir.join(".steam").join("steam")
+        if cfg!(target_os = "windows") {
+            // Default Steam install path on Windows
+            PathBuf::from(r"C:\Program Files (x86)\Steam")
+        } else {
+            // Default Steam path on Linux/macOS
+            let home_dir = dirs::home_dir().expect("Home directory not found");
+            home_dir.join(".steam").join("steam")
+        }
     };
 }
 
